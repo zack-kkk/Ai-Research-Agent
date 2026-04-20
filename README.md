@@ -92,7 +92,6 @@ index.html
 * Add LLM-based reasoning
 * Add chat memory
 * Rank sources by relevance
-* Deploy online
 
 ---
 
