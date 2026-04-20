@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Research Agent</title>
+
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #0b1220;
+        color: white;
+    }
+
+    .container {
+        max-width: 900px;
+        margin: auto;
+        padding: 30px;
+    }
+
+    h1 {
+        text-align: center;
+        color: #38bdf8;
+        margin-bottom: 20px;
+    }
+
+    .search-box {
+        display: flex;
+        gap: 10px;
+    }
+
+    input {
+        flex: 1;
+        padding: 14px;
+        border-radius: 10px;
+        border: none;
+        outline: none;
+        font-size: 16px;
+    }
+
+    button {
+        padding: 14px 20px;
+        border: none;
+        border-radius: 10px;
+        background: #38bdf8;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    .card {
+        background: #111a2e;
+        padding: 18px;
+        border-radius: 12px;
+        margin-top: 15px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    }
+
+    .section-title {
+        color: #38bdf8;
+        font-weight: bold;
+        margin-bottom: 8px;
+    }
+
+    a {
+        color: #60a5fa;
+        text-decoration: none;
+    }
+
+    .loading {
+        text-align: center;
+        margin-top: 20px;
+        color: #94a3b8;
+    }
+</style>
+</head>
+
+<body>
+
+<div class="container">
+    <h1>AI Research Agent</h1>
+
+    <div class="search-box">
+        <input id="query" placeholder="Search anything (AI, science, healthcare...)">
+        <button onclick="search()">Search</button>
+    </div>
+
+    <div id="result"></div>
+</div>
+
+<script>
+async function search() {
+    const query = document.getElementById("query").value;
+    const resultDiv = document.getElementById("result");
+
+    resultDiv.innerHTML = `<div class="loading">Thinking...</div>`;
+
+    const response = await fetch("http://127.0.0.1:8000/research", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ query })
+    });
+
+    const data = await response.json();
+
+    resultDiv.innerHTML = `
+        <div class="card">
+            <div class="section-title">Query</div>
+            <div>${data.query}</div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">Summary</div>
+            <div>${data.summary || "No summary available"}</div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">Wikipedia Title</div>
+            <div>${data.title || "N/A"}</div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">Research Papers</div>
+            ${(data.papers || []).map(p => `
+                <div style="margin-bottom:10px;">
+                    <b>${p.title}</b><br>
+                    <a href="${p.link}" target="_blank">Open Paper</a>
+                </div>
+            `).join("")}
+        </div>
+
+        <div class="card">
+            <div class="section-title">Books</div>
+            ${(data.book_results || []).map(b => `
+                <div>${b.title} - ${b.author}</div>
+            `).join("")}
+        </div>
+
+        <div class="card">
+            <div class="section-title">Quote</div>
+            <div>${data.quote || ""}</div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">Web Context</div>
+            <div>${data.web_context || ""}</div>
+        </div>
+
+        <div class="card">
+            <div class="section-title">Sources</div>
+            <div>${(data.sources || []).join(", ")}</div>
+        </div>
+    `;
+}
+</script>
+
+</body>
+</html>
